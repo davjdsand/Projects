@@ -1,0 +1,280 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.numeric_std.ALL;
+
+entity ElevatorController is
+    Port(
+        time1 : in std_logic;
+        clk : in std_logic;
+        reset : in std_logic;     
+        floorButton : in STD_LOGIC_VECTOR(12 downto 0);
+        door : in std_logic;
+        weight : in std_logic;
+        direction : out STD_LOGIC_VECTOR(2 downto 0);
+        floorIndicator : out STD_LOGIC_VECTOR(12 downto 0);
+        an : out STD_LOGIC_VECTOR(7 downto 0);
+        segment_output : out STD_LOGIC_VECTOR(7 downto 0));
+end ElevatorController;
+
+architecture Behavioral of ElevatorController is
+   -- component MPG is
+     --   Port ( btn : in STD_LOGIC;
+       --        clk : in STD_LOGIC;
+         --      en : out STD_LOGIC);
+    --end component;
+    component SevenSegmentDecoder is
+        port(
+            binary_input : in INTEGER range 0 to 12;
+            segment_output : out STD_LOGIC_VECTOR(7 downto 0));
+    end component;
+    
+    component Clock_Divider is
+        generic(N: integer := 100_000_000);
+        port ( clk, reset: in std_logic;
+               clock_out: out std_logic);
+    end component;
+    
+    type elevatorState is (waiting, movingUp, movingDown, doorOpen, delay);
+    signal state : elevatorState := waiting;
+    signal currentFloor : INTEGER := 0;
+    signal destinationFloor : STD_LOGIC_VECTOR(12 downto 0) := (others => '0');
+    signal maxFloor : integer := -1;
+    signal minFloor : integer := 13;
+    signal clk_n : std_logic;
+    
+    --signal clk_f : std_logic;
+    signal delayCounter : integer := 0;
+    signal delay_time: integer := 0;
+    constant delay1 : integer := 1;
+    constant delay3 : integer := 13; 
+
+begin
+   --ClockDivider_inst : Clock_Divider
+   
+   -- u1: MPG port map('1', clk, clk_n);
+    u2: Clock_Divider port map (clk, reset, clk_n);
+    process(clk_n, reset)
+        --variable statevar : elevatorState := waiting;
+        variable currentFloorvar : INTEGER := 0;
+        variable destinationFloorvar : STD_LOGIC_VECTOR(12 downto 0) := (others => '0');
+        variable maxFloorvar : integer := -1;
+        variable minFloorvar : integer := 13;
+        variable statevar : elevatorState := waiting;
+        variable delayCountervar : integer := 0;
+        
+    begin
+        destinationFloorvar := destinationFloor;
+        delayCountervar := delayCounter;
+        currentFloorvar := currentFloor;
+        maxfloorvar := maxfloor;
+        minfloorvar := minfloor;
+        statevar := state;
+        if (time1 = '1') then
+            delay_time <= delay1;
+        else 
+            delay_time <= delay3;
+        end if;
+        if reset = '1' then
+            statevar := waiting;
+            currentFloorvar := 0;
+            maxFloorvar := -1;
+            minFloorvar := 13;
+            destinationFloorvar := (others => '0');
+            delayCounter <= 0;
+        elsif rising_edge(clk_n) then
+        
+            if state =  waiting then
+                maxFloorvar := -1;
+                minFloorvar := 13;
+                if floorButton(0) = '1' then
+                    destinationFloorvar(0) := '1';
+                    if 0 > maxFloorvar then
+                        maxFloorvar := 0;
+                    end if;
+                    if 0 < minFloorvar then
+                        minFloorvar := 0;
+                    end if;
+                end if;
+                
+                if floorButton(1) = '1' then
+                    destinationFloorvar(1) := '1';
+                    if 1 > maxFloorvar then
+                        maxFloorvar := 1;
+                    end if;
+                    if 1 < minFloorvar then
+                        minFloorvar := 1;
+                    end if;
+                end if;
+                
+                if floorButton(2) = '1' then
+                    destinationFloorvar(2) := '1';
+                    if 2 > maxFloorvar then
+                        maxFloorvar := 2;
+                    end if;
+                    if 2 < minFloorvar then
+                        minFloorvar := 2;
+                    end if;
+                end if;
+                
+                if floorButton(3) = '1' then
+                    destinationFloorvar(3) := '1';
+                    if 3 > maxFloorvar then
+                        maxFloorvar := 3;
+                    end if;
+                    if 3 < minFloorvar then
+                        minFloorvar := 3;
+                    end if;
+                end if;
+                
+                if floorButton(4) = '1' then
+                    destinationFloorvar(4) := '1';
+                    if 4 > maxFloorvar then
+                        maxFloorvar := 4;
+                    end if;
+                    if 4 < minFloorvar then
+                        minFloorvar := 4;
+                    end if;
+                end if;
+                
+                if floorButton(5) = '1' then
+                    destinationFloorvar(5) := '1';
+                    if 5 > maxFloorvar then
+                        maxFloorvar := 5;
+                    end if;
+                    if 5 < minFloorvar then
+                        minFloorvar := 5;
+                    end if;
+                end if;
+                
+                if floorButton(6) = '1' then
+                    destinationFloorvar(6) := '1';
+                    if 6 > maxFloorvar then
+                        maxFloorvar := 6;
+                    end if;
+                    if 6 < minFloorvar then
+                        minFloorvar := 6;
+                    end if;
+                end if;
+                
+                if floorButton(7) = '1' then
+                    destinationFloorvar(7) := '1';
+                    if 7 > maxFloorvar then
+                        maxFloorvar := 7;
+                    end if;
+                    if 7 < minFloorvar then
+                        minFloorvar := 7;
+                    end if;
+                end if;
+                
+                if floorButton(8) = '1' then
+                    destinationFloorvar(8) := '1';
+                    if 8 > maxFloorvar then
+                        maxFloorvar := 8;
+                    end if;
+                    if 8 < minFloorvar then
+                        minFloorvar := 8;
+                    end if;
+                end if;
+                
+                if floorButton(9) = '1' then
+                    destinationFloorvar(9) := '1';
+                    if 9 > maxFloorvar then
+                        maxFloorvar := 9;
+                    end if;
+                    if 9 < minFloorvar then
+                        minFloorvar := 9;
+                    end if;
+                end if;
+                
+                if floorButton(10) = '1' then
+                    destinationFloorvar(10) := '1';
+                    if 10 > maxFloorvar then
+                        maxFloorvar := 10;
+                    end if;
+                    if 10 < minFloorvar then
+                        minFloorvar := 10;
+                    end if;
+                end if;
+                
+                if floorButton(11) = '1' then
+                    destinationFloorvar(11) := '1';
+                    if 11 > maxFloorvar then
+                        maxFloorvar := 11;
+                    end if;
+                    if 11 < minFloorvar then
+                        minFloorvar := 11;
+                    end if;
+                end if;
+                
+                if floorButton(12) = '1' then
+                    destinationFloorvar(12) := '1';
+                    if 12 > maxFloorvar then
+                        maxFloorvar := 12;
+                    end if;
+                    if 12 < minFloorvar then
+                        minFloorvar := 12;
+                    end if;
+                end if;
+                if maxFloorvar > currentFloor then
+                    statevar := movingUp;
+                elsif minFloorvar < currentFloor then
+                    statevar := movingDown;
+                end if;
+            end if;
+            if state = movingUp then
+                if door = '0' and weight = '0' then
+                    if (currentFloorvar < maxFloorvar) then
+                        currentFloorvar := currentFloorvar + 1;
+                    end if;
+                    if currentFloorvar = maxFloorvar then
+                        statevar := movingDown;
+                    end if;
+                end if;
+            end if;
+            if state = movingDown then
+                if door = '0' and weight = '0' then
+                    if destinationFloorvar(currentFloorvar) = '1' then
+                            if delayCountervar < delay_time then
+                                delayCountervar := delayCountervar + 1;
+                            else
+                                delayCountervar := 0;
+                                destinationFloorvar(currentFloorvar) := '0';
+                            end if;
+                    else 
+                            if currentFloorvar > minFloorvar then
+                                currentFloorvar := currentFloorvar - 1;
+                            end if;
+                            if currentFloorvar = minFloorvar then
+                                statevar := waiting;
+                            end if;
+                        end if;
+                end if;
+            end if;
+        
+            floorIndicator <= "0000000000000";
+            floorIndicator(currentFloorvar) <= '1';
+            
+            if statevar = movingUp then
+                direction <= "001";
+            elsif statevar = movingDown then
+                direction <= "100";
+            else
+                direction <= "010";
+            end if;
+        end if;
+        delayCounter <= delayCountervar;
+        state <= statevar;
+        destinationFloor <= destinationFloorvar;
+        currentFloor <= currentFloorvar;
+        maxfloor <= maxfloorvar;
+        minfloor <= minfloorvar;
+        
+    end process;
+    
+    -- Instantiate the 7-segment decoder
+    u3: SevenSegmentDecoder port map (currentFloor, segment_output);
+
+    -- Activate the anode for the single 7-segment display
+    an <= "11111110";
+
+end Behavioral;
